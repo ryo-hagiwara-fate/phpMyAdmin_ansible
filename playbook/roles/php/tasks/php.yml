@@ -1,0 +1,39 @@
+---
+- name: install　php
+  shell: "amazon-linux-extras install -y php7.2"
+  become: yes
+
+- name: install php-mbstring and php-opcache and php-xml
+  yum: name={{ item }}
+  with_items:
+      - php-mbstring
+      - php-opcache
+      - php-xml
+
+- name: start php-fpm
+  systemd:
+    name: php-fpm.service
+    state: started
+    daemon_reload: yes
+    enabled: yes
+
+- name: copy ../files/www.conf to /etc/php-fpm.d/www.conf
+  copy:
+    src: ../files/www.conf
+    dest: /etc/php-fpm.d/www.conf
+    owner: nginx
+    group: nginx
+    mode: "u=rw,g=r,o=r"
+
+- name: restart nginx.
+  service:
+    name: nginx
+    state: restarted
+    enabled: true
+
+- name: restart php-fpm
+  systemd:
+    name: php-fpm.service
+    state: restarted
+    daemon_reload: yes
+    enabled: yes

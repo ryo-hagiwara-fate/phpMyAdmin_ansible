@@ -1,0 +1,10 @@
+---
+- name: enable to install nginx.
+  shell: "amazon-linux-extras install -y nginx1.12"
+  become: yes
+
+- name: started and enabled service nginx.
+  service:
+    name: nginx
+    state: started
+    enabled: true

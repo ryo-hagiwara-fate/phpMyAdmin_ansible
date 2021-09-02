@@ -1,0 +1,44 @@
+---
+- name: mkdir phpMyAdmin in /usr/share/nginx/html
+  file: path=/usr/share/nginx/html/phpMyAdmin state=directory owner=root group=root mode=0755
+
+- name: install phpMyAdmin
+  get_url:
+    url="https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-all-languages.tar.gz"
+    dest=/usr/share/nginx/html/phpMyAdmin/phpMyAdmin-latest-all-languages.tar.gz
+
+- name: open phpMyAdmin
+  unarchive:
+    src: /usr/share/nginx/html/phpMyAdmin/phpMyAdmin-latest-all-languages.tar.gz
+    dest: /usr/share/nginx/html/phpMyAdmin/
+    remote_src: yes
+    extra_opts: [--strip-components=1]
+  become: yes
+
+- name: chown -R nginx:nginx /var/lib/php/session
+  shell: "chown -R nginx:nginx /var/lib/php/session"
+  become: yes
+
+- name: copy ../files/config.inc.php to /usr/share/nginx/html/phpMyAdmin/config.inc.php
+  template:
+    src: ../files/config.inc.php
+    dest: /usr/share/nginx/html/phpMyAdmin/config.inc.php
+    owner: nginx
+    group: nginx
+    mode: "u=rw,g=r,o=r"
+
+- name: phpMyAdmin tmp directory
+  file: path=/usr/share/nginx/html/phpMyAdmin/tmp/ state=directory owner=nginx group=nginx mode=0755
+
+- name: restarted and enabled service nginx.
+  service:
+    name: nginx
+    state: started
+    enabled: true
+
+- name: restart php-fpm
+  systemd:
+    name: php-fpm.service
+    state: restarted
+    daemon_reload: yes
+    enabled: yes

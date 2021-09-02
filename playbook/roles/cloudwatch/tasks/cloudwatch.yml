@@ -1,0 +1,45 @@
+---
+- name: install cloudwatch agent
+  get_url:
+    url: "https://s3.amazonaws.com/amazoncloudwatch-agent/amazon_linux/amd64/latest/amazon-cloudwatch-agent.rpm"
+    dest:  /opt/aws
+
+- name: install package
+  command: "rpm -U ./amazon-cloudwatch-agent.rpm"
+  args:
+    chdir: /opt/aws
+  ignore_errors: yes
+
+- name: install collectd package
+  yum:
+    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    state: present
+
+- name: install collectd
+  yum:
+    name: collectd
+    state: present
+
+- name: copy cloudwatch agent File
+  copy:
+    src: ../files/config.json
+    dest: /opt/aws/amazon-cloudwatch-agent/bin/config.json
+    owner: root
+    group: root
+    mode: "u=rw,g=r,o=r"
+
+- name: reflect config.json
+  command: "/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -s -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json"
+  args:
+    chdir: "~"
+
+- name: start cloudwatch agent
+  command: "/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -m ec2 -a start"
+  args:
+    chdir: "~"
+
+- name: "enable cloudwatch agent"
+  command: systemctl enable amazon-cloudwatch-agent.service
+
+- name: "restart cloudwatch agent"
+  command: systemctl restart amazon-cloudwatch-agent.service

@@ -1,0 +1,12 @@
+---
+- name: set timezone
+  shell: "timedatectl set-timezone Asia/Tokyo"
+  # register: set_timezone
+  # changed_when: false
+  # always_run: yes
+
+- name: set locale
+  shell: "localectl set-locale LANG=ja_JP.UTF-8"
+  # register: set_locale
+  # changed_when: false
+  # always_run: yes
