@@ -12,4 +12,7 @@ aws ssm send-command --document-name "AWS-ApplyAnsiblePlaybooks" --instance-ids 
 ```
 
 - その他  
-  - systems manager使うとsshせずに実行可能
+  - systems manager使うとsshせずに実行可能  
+
+- Qiitaに記事を投稿しました  
+  - https://qiita.com/ryo_hagiwara/items/8409e2a0c3ef8a8769c7  
